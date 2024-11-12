@@ -21,6 +21,7 @@ def parse_motor_reply(can_message):
     """
     # Split the message string and extract the hexadecimal data bytes
     parts = can_message.split()
+
     can_id = int(parts[1])
 
     # Check if the message ID matches the motor ID range (0x241 - 0x244)
@@ -31,32 +32,16 @@ def parse_motor_reply(can_message):
         
         # Convert the hex strings to integers
         can_data = [int(byte, 16) for byte in hex_data]
+
+        print(can_data)
         
-        # Check if the command byte matches the motor power acquisition command (0x71)
-        if can_data[0] == 0x71:
-            # Data[6] and Data[7]: Motor power (uint16_t, 0.1W/LSB)
-            motor_power = (can_data[7] << 8) | can_data[6]
-            motor_power /= 10.0  # Convert to watts
+        # # Fill the MotorPower message
+        # motor_curr.motor_id = can_id - 0x100
+        # motor_curr.motor_c = 
 
-            if can_id == 0x241:
-                motor_voltage = rospy.get_param("/front_right_voltage")
-
-            if can_id == 0x242:
-                motor_voltage = rospy.get_param("/back_right_voltage")
-
-            if can_id == 0x243:
-                motor_voltage = rospy.get_param("/back_left_voltage")
-
-            if can_id == 0x244:
-                motor_voltage = rospy.get_param("/front_left_voltage")
-
-            # Fill the MotorPower message
-            motor_curr.motor_id = can_id - 0x100
-            motor_curr.motor_c = motor_power / motor_voltage
-
-            # Publish the message
-            pub.publish(motor_curr)
-            rospy.sleep(0.01)
+        # # Publish the message
+        # pub.publish(motor_curr)
+        # rospy.sleep(0.01)
 
 
 def monitor_terminal(command, target):
@@ -79,7 +64,7 @@ def monitor_terminal(command, target):
             parse_motor_reply(line.strip())
 
 def main():
-    monitor_terminal("candump can0", "71")
+    monitor_terminal("candump can0", "9D")
 
 if __name__ == "__main__":
     main()
